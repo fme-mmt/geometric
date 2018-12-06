@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <title> Regular Triangle  </title>
+		<script src = 'g9.js'> </script>
+	</head>
+	<body>
+        <h1>Construction of the equilateral triangle</h1>
+		<div id = "container"></div>
+		<script>
+			
+			
+			/**
+			 * Given two numbers a and b, returns the point (a,b).
+			 * @param a : Number indicating the x-axis value
+			 * @param b : Number indicating the y-axis value
+			 * @return Returns an object representing the point (a,b).
+			 */
+			function Point(a, b) {
+				var p = new Object();
+				p.x = a;
+				p.y = b;
+				return p;
+			}
+			
+			
+			/**
+			 * Given two numbers a and b, returns the vector (a,b).
+			 * @param a : Number indicating the x-axis value
+			 * @param b : Number indicating the y-axis value
+			 * @return Returns an object representing the vector (a,b).
+			 */
+			function Vector(a, b) {
+				var v = new Object();
+				v.x = a;
+				v.y = b;
+				return v;
+			}
+			
+			
+			/**
+			 * Given two points p and q, returns the line that goes through them.
+			 * @param p : First point the line will go through
+			 * @param q : Second point the line will go through
+			 * @return Returns an object representing the line that passes through both points p and q.
+			 */
+			function line_from_points(p, q) {
+				var line = new Object();
+				line.point = p;
+				var v = Vector(q.x - p.x, q.y - p.y);
+				line.vector = v;
+				return line;	
+			} 
+
+			
+			/**
+			 * Given a point p and a number r, returns the circle with center p and radius r.
+			 * @param p : Point that will be used as the center of the circle
+			 * @param r : Positive number that will become the radius of the circle
+			 * @return Returns an object representing the circle with center p and radius r.
+			 */
+			function circle_from_center_radius(p, r) {
+				var circle = new Object();
+				circle.point = p;
+				circle.radius = r;
+				return circle;
+			}
+
+
+			/**
+			 * Given two lines l and m, returns the intersecting points.
+			 * @param l : First line given as a set of a point and a vector
+			 * @param m : Second line given as a set of a point and a vector
+			 * @return Returns a list with the point resulting from the intersection, if there is any.
+			 */
+			function intersect_lines(l,m) {
+				var intersecting_points = [];
+				if (l.vector.x*m.vector.y === m.vector.x * l.vector.y) return intersecting_points;
+				var mu, lambda;
+				if (l.vector.y === 0) mu = (l.point.y - m.point.y) / m.vector.y;
+				else mu = (l.point.x + (m.point.y - l.point.y)*l.vector.x / l.vector.y - m.point.x) / (m.vector.x - m.vector.y * l.vector.x/ l.vector.y);
+				//lambda = (m.point.y + mu * m.vector.y - l.point.y) / l.vector.y;
+				var ics = m.point.x + mu*m.vector.x;
+				var igrega = m.point.y + mu*m.vector.y;
+				var p = Point(ics, igrega);					
+				intersecting_points.push(p);
+				return intersecting_points;
+			}
+
+			/**
+			 * Given a line l and a circle c, returns the intersecting points.
+			 * @param l : Line given as a set of a point and a vector
+			 * @param c : Circle given as a set of a point used as the center and the radius
+			 * @return Returns a list with the points resulting from the intersection, if there are any.
+			 */
+			function intersect_line_circle(l,c) {
+				var intersecting_points = [];
+				var vara = l.vector.x * l.vector.x + l.vector.y * l.vector.y;
+				var varb = 2 * l.vector.x * (l.point.x - c.point.x) + 2 * l.vector.y * (l.point.y - c.point.y);
+				var varc = (l.point.x - c.point.x) * (l.point.x - c.point.x) + (l.point.y - c.point.y) * (l.point.y - c.point.y) - c.radius * c.radius;
+				if (vara === 0) {
+					if (varb === 0) return intersecting_points;
+					var mu = -varc / varb;
+					var p = Point(l.point.x + mu*l.vector.x, l.point.y + mu * l.vector.y);
+					intersecting_point.push(p);
+				}
+				if (varb*varb - 4*vara*varc > 0) {
+					var mu = (-varb + Math.sqrt(varb*varb-4*vara*varc)) / (2*vara);
+					var p = Point(l.point.x + mu*l.vector.x, l.point.y + mu*l.vector.y);
+					intersecting_points.push(p);
+					mu = (-varb - Math.sqrt(varb*varb-4*vara*varc)) / (2*vara);
+					p = Point(l.point.x + mu*l.vector.x, l.point.y + mu*l.vector.y);
+					intersecting_points.push(p);
+				}
+				else if (varb*varb - 4*vara*varc === 0) {
+					var mu = -varb / (2*vara);
+					var p = Point(l.point.x + mu*l.vector.x, l.point.y + mu*l.vector.y);
+					intersecting_points.push(p);
+				}
+				return intersecting_points;				
+			}
+
+
+			/**
+			 * Given two circles c and d, returns a list with the intersecting points.
+			 * @param c : First circle given as a set of a point used as the center and the radius
+			 * @param d : Second circle given as a set of a point used as the center and the radius
+			 * @return Returns a list with the points resulting from the intersection, if there are any.
+			 */
+			function intersect_circles2(c,d) {
+				var intersecting_points = [];
+				if (d.point.y !== c.point.y) {
+					var vara = 1 + (d.point.x - c.point.x)*(d.point.x - c.point.x)/((d.point.y - c.point.y)*(d.point.y - c.point.y));
+					var varb = -2*c.point.x - ((d.point.x - c.point.x)*(c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y ))/((d.point.y - c.point.y)*(d.point.y - c.point.y)) + 2*(d.point.x - c.point.x)/(d.point.y - c.point.y);
+					var varc = c.point.x*c.point.x + (c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y )*(c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y )/(4*(d.point.y - c.point.y)*(d.point.y - c.point.y)) - (c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y ) / (d.point.y - c.point.y) + c.point.x*c.point.x - c.radius*c.radius;
+					if (varb*varb - 4*vara*varc > 0) {
+						var x = (-varb + Math.sqrt(varb*varb - 4*vara*varc))/(2*vara);
+						var y = (c.radius*c.radius - d.radius*d.radius - 2*x*(d.point.x - c.point.x) - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y) / (2*(d.point.y - c.point.y));
+						var p = Point(x,y);
+						intersecting_points.push(p);
+						var x = (-varb - Math.sqrt(varb*varb - 4*vara*varc))/(2*vara);
+						var y = (c.radius*c.radius - d.radius*d.radius - 2*x*(d.point.x - c.point.x) - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y) / (2*(d.point.y - c.point.y));
+						var p = Point(x,y);
+						intersecting_points.push(p);
+					}
+					else if (varb*varb - 4*vara*varc === 0) {
+						var x = (-varb)/(2*vara);
+						var y = (c.radius*c.radius - d.radius*d.radius - 2*x*(d.point.x - c.point.x) - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y) / (2*(d.point.y - c.point.y));
+						var p = Point(x,y);
+						intersecting_points.push(p);
+					}
+				}	
+				else if (d.point.x !== c.point.x) {
+					var x = (c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x)/(2*(d.point.x - c.point.x));
+					var vara = 1;
+					var varb = -2*c.point.y;
+					var varc = x*x - 2*x*c.point.x + c.point.x*c.point.x + c.point.y*c.point.y - c.radius*c.radius;
+					if (varb*varb - 4*vara*varc > 0) {
+						var y = (-varb + Math.sqrt(varb*varb - 4*vara*varc))/(2*vara);
+						var p = Point(x, y);
+						intersecting_points.push(p);
+						y = (-varb - Math.sqrt(varb*varb - 4*vara*varc))/(2*vara);
+						var p = Point(x, y);
+						intersecting_points.push(p);
+					}
+					else if (varb*varb - 4*vara*varc === 0) {
+						var y = -varb/(2*vara);
+						var p = Point(x, y);
+						intersecting_points.push(p);
+					}
+				}
+				return intersecting_points;	
+			}
+			
+			function unit (a){
+                var norm = Math.sqrt(a[0]*a[0] + a[1]*a[1]);
+                return [a[0]/norm, a[1]/norm]; 
+            }
+
+            function dist(p,q) {
+				return Math.sqrt((p.x-q.x)*(p.x-q.x)+(p.y-q.y)*(p.y-q.y));
+			}
+   
+            function sq(x) {
+				return x*x;	
+			}
+            
+            const EPS = 1e-6;
+            
+            function intersect_circles(c,d) {
+                
+                var intersecting_points = [];
+                var dd = dist(c.point, d.point);
+                var cx = c.point.x;
+                var cy = c.point.y;
+                var dx = d.point.x;
+                var dy = d.point.y;
+                var cr = c.radius;
+                var dr = d.radius;
+                if (cr + dr + EPS < dd){
+                    return intersecting_points;
+                }
+                var t = dd*dd + cr*cr - dr*dr;
+                var x = t/(2*dd);
+                if (x + EPS < dd - dr || x - EPS > cr) {
+                    return intersecting_points;
+                }
+                var t2 = (sq(2*dd*cr) - t*t)/sq(2*dd);
+                if (Math.abs(t2) < EPS) t2 = 0;
+                if (t2 < 0) {
+                    return intersecting_points;
+                }
+                var y = Math.sqrt(t2);
+                var a = [dx - cx, dy - cy];
+                var n1 = unit(a);
+                var b = [-n1[1], n1[0]];
+                var n2 = unit(b);
+                
+                var p = Point()
+                intersecting_points.push(Point(cx + x*n1[0] + y*n2[0], cy + x*n1[1] + y*n2[1]));
+                if (t2 > 0){
+                    intersecting_points.push(Point(cx + x*n1[0] - y*n2[0], cy + x*n1[1] - y*n2[1]));
+                }
+                return intersecting_points;
+            }
+			
+			/* ---------------------------- EXEMPLE AMB UN QUADRAT -------------------------- */
+			
+			
+			
+
+			// --------------------------- DIBUIX DEL TRIANGLE ----------------------------------
+            
+            function drawpoint(str, A, ctx){
+                ctx.point(A.x*100, -A.y*100);
+                ctx.text(str, 100*A.x + 13, -100*A.y + 7, {
+                    'font-family': 'sans-serif',
+                    'font-size': '25px',
+                    'text-anchor': 'middle',
+                    'fill': '#000000'
+                });
+            }
+                
+            function drawsegment(A, B, ctx){
+                ctx.line(A.x*100, -A.y*100, B.x*100, -B.y*100, {
+                    'stroke-width': 5,
+                    'stroke': 'blue',
+                    //'stroke-linecap': 'round'
+                });
+            }
+            
+            function drawline(l, ctx){
+                ctx.line((l.point.x - 100*l.vector.x)*100, -(l.point.y - 100*l.vector.y)*100, (l.point.x + 100*l.vector.x)*100, -(l.point.y + 100*l.vector.y)*100);
+            }
+            
+            function drawcircle(C, ctx, col){
+                var i;
+                var PI = 3.1415926535;
+                var it = 200;
+                for (i = 0.0; i <= it; ++i){
+                    ctx.point((C.point.x + C.radius*Math.cos(2*PI*i/it))*100, (C.point.y + C.radius*Math.sin(2*PI*i/it))*(-100), {r:2, fill: col});
+                }
+                //ctx.circle(C.point.x*100, -C.point.y*100, C.radius*100);
+            }
+            
+			var initialData = {
+				ax : 0, 
+				ay : 0,
+				bx : 1, 
+				by : 0 
+            };
+            
+            const max_step = 4;
+            var step = -1;
+            
+			var render = function(data, ctx){
+
+                var A = Point(data.ax, data.ay);
+                var B = Point(data.bx, data.by);
+                var c1 = circle_from_center_radius(A,dist(A, B));
+                var c2 = circle_from_center_radius(B,dist(A, B));
+                var CD = intersect_circles(c1,c2);
+                var C = CD[0];
+                var D = CD[1];
+                var a = line_from_points(B, C);
+                var b = line_from_points(C, A);
+                var c = line_from_points(A, B);
+                
+                //console.log('Punt A: ', A);
+                //console.log('Punt B: ', B);
+                //console.log('Cercle c1: ', c1);
+                //console.log('Cercle c2: ', c2);
+                //console.log('Interseccio c1 i c2: ', CD);
+                //console.log('Punt C: ', C);
+                //console.log('Punt D: ', D);
+                
+                if (true){
+                    drawpoint('A', A, ctx);
+                    drawpoint('B', B, ctx);
+                }
+                if (step >= 1){
+                    drawcircle(c1, ctx, 'green');
+                    drawcircle(c2, ctx, 'green');
+                }
+                if (step >= 2){
+                    drawpoint('C', C, ctx);
+                    drawpoint('D', D, ctx);
+                }
+                if (step >= 3){
+                    drawline(a, ctx);
+                    drawline(b, ctx);
+                    drawline(c, ctx);
+                }                    
+                if (step >= 4){
+                    drawsegment(A, B, ctx);
+                    drawsegment(B, C, ctx);
+                    drawsegment(C, A, ctx);
+                }
+            }
+						
+            //g9(initialData, render).align('center','center').insertInto('#container');
+            
+            function setG9() {
+                let g9Canvas = g9(initialData, render).align('center', 'center').insertInto('#container');
+                g9Canvas.node.style.height = '600px';
+                g9Canvas.node.style.width = '600px';
+                g9Canvas.resize();
+            }
+            
+            setG9();
+            
+            function erase() {
+                const node = document.getElementById('container');
+                while (node.firstChild) node.removeChild(node.firstChild);
+            }
+            
+            function reset() {
+                step = 0;
+                erase();
+                setG9();
+            }
+            
+            function next() {
+                let nextBtn = document.getElementById('next');
+                if (step == max_step){
+                    nextBtn.innerHTML = "Reset";
+                    step = 0;
+                    reset();
+
+                }
+                else {
+                    nextBtn.innerHTML = "Next step";
+                    ++step;
+                    erase();
+                    setG9();
+                }
+            };
+            
+		</script>
+        <button id="next" onClick="next()">Click to start</button>
+        <button onClick="reset()">Reset</button>
+	</body>
+</html>
+  
