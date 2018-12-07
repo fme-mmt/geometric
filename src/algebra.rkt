@@ -173,7 +173,7 @@
       (define c1 (eqs-circle A dist))
       (define c2 (eqs-circle B dist))
       (define intersectionCD (eqs-intersection c1 c2))
-      (maple-solve (intersectionCD 'x 'y))
+      ;; (maple-solve (intersectionCD 'x 'y))
 
 ;Wolfram alpha
 ;APP NAME: RacketUPC
@@ -242,4 +242,4 @@
 (define g (json-point 1 9))
 (define h (json-line f g))
 (define example2 (list f g h))
-(jsexpr->string (elements example2))
+;; (jsexpr->string (elements example2))
