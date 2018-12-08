@@ -4,7 +4,7 @@
 
 (provide maple-solve eqs-point eqs-line eqs-circle eqs-intersection dist-points explain)
 (provide make-context resolve eqs)
-(provide elements json-point json-line json-circle json-intersection)
+(provide elements json-point json-line json-circle json-intersection get-id)
 
 (define indexs (make-hash))
 (define (new-var [prefix 'x])
@@ -232,10 +232,13 @@
   (define identificador (new-id))
   (hash 'hidden #f 'type  "intersection" 'negRoot #f 'parents (hash 'host1 obj1 'host2 obj2) 'color "#c74440" 'id identificador))
 
+(define (get-id obj)
+  (string->symbol (hash-ref obj 'id)))
+
 
 (define (elements objs)
-(for/hash ([o objs])
-    (values (string->symbol (hash-ref o 'id)) o)))
+  (for/hash ([o objs])
+    (values (get-id o) o)))
 
 ; petit exemple
 (define f (json-point 2 3))
