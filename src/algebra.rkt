@@ -220,7 +220,7 @@
 ; LINE
 (define (json-line p1 p2)
   (define identificador (new-id))
-  (hash 'hidden #f 'type  "line" 'parents (hash 'point1 (hash-ref p1 'id) 'point2 (hash-ref p2 'id)) 'color "#2d70b3" 'id identificador))
+  (hash 'hidden #f 'type  "line" 'parents (hash 'point1 p1 'point2 p2) 'color "#2d70b3" 'id identificador))
 
 ; CIRCLE
 (define (json-circle p1 p2)
