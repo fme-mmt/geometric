@@ -36,16 +36,26 @@
         (or (resolve (first full-ctx) v)
             (find (rest full-ctx))))))
 
-(define (app fctx geo-lambda args)
-  (let ([local-ctx (new-context fctx)]
-        [actions (cdr geo-lambda)]
-        [vars (car geo-lambda)])
+(struct geo-lambda [args steps])
+
+(define (app fctx geo . args)
+  (let ([local-ctx (new-context fctx)])
     (add-to-context local-ctx
-                    (for/list ([v vars] [a args]) (list v a)))
-    (values local-ctx actions)))
-    
+                    (for/list ([v (geo-lambda-args geo)] [a args]) (list v a)))
+    (values local-ctx (geo-lambda-steps geo))))
     
   
+(define example
+  (geo-lambda
+   '(A B)
+   '([r (len A B)]
+     [c1 (circ A r)]
+     [c2 (circ B r)]
+     [CD (cut c1 c2)])))
+
+(define global (make-full-context))
+(define-values (local const) (app global example '(point 0 0) '(point 1 0)))
+(add-to-context local const)
 
 
 
