@@ -81,7 +81,7 @@
 (define (eqs ctx v)
     (match (resolve ctx v)
       [#f (error "Not defined" v)]
-      [(list 'cut c1 c2) ((eqs-intersection (eqs ctx c1) (eqs ctx c2)))]
+      [(list 'cut c1 c2) (eqs-intersection (eqs ctx c1) (eqs ctx c2))]
       [(list 'circ p r) (eqs-circle (eqs ctx p) (eqs ctx r))]
       [(list 'len p q) (dist-points (eqs ctx p) (eqs ctx q))]
       [(list 'point a b) (eqs-point a b)]
