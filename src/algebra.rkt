@@ -3,8 +3,7 @@
 (require json)
 (require "context.rkt")
 
-(provide maple-solve eqs-point eqs-line eqs-circle eqs-intersection dist-points explain)
-; (provide make-context resolve eqs)
+(provide eqs maple-solve eqs-point eqs-line eqs-circle eqs-intersection dist-points explain)
 (provide elements json-point json-line json-circle json-intersection get-id)
 
 (define indexs (make-hash))
