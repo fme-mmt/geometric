@@ -4,7 +4,7 @@
 (require "context.rkt")
 
 (provide eqs maple-solve eqs-point eqs-line eqs-circle eqs-intersection dist-points explain)
-(provide elements json-point json-line json-circle json-intersection get-id)
+(provide elements json-point json-line json-circle json-intersection get-id pretty-print)
 
 (define indexs (make-hash))
 (define (new-var [prefix 'x])
