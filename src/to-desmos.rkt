@@ -1,5 +1,5 @@
 #lang racket
-(require "geometric/src/algebra.rkt" json)
+(require "algebra.rkt" json)
 
 ;; https://codepen.io/jsaludes/pen/qQVgKG
 
