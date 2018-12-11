@@ -1,6 +1,6 @@
 #lang racket
 ; crear/explotar un contexte
-(provide resolve make-context)
+(provide resolve full-resolve make-context)
 
 
 (define (resolve context var)
