@@ -1,9 +1,10 @@
 #lang racket
 
 (require json)
+(require "context.rkt")
 
 (provide maple-solve eqs-point eqs-line eqs-circle eqs-intersection dist-points explain)
-(provide make-context resolve eqs)
+; (provide make-context resolve eqs)
 (provide elements json-point json-line json-circle json-intersection get-id)
 
 (define indexs (make-hash))
@@ -68,15 +69,6 @@
 ;(define B (eqs-point 0 1))
 
 
-; crear/explotar un contexte
-(define (make-context defs)
-  (define ctx (make-hash))
-  (define (assign-one def)
-    (match def
-      [(list (? symbol? v) c) (hash-set! ctx v c)]
-      [_ (error "Not conforming" def)]))
-  (for ([d defs]) (assign-one d))
-  ctx)
 
 (define example '(
    [A (point 0 0)]
@@ -86,8 +78,6 @@
    [c2 (circ B r)]
    [CD (cut c1 c2)]))
     
-(define (resolve context var)
-  (hash-ref context var #f))
 
 (define (eqs ctx v)
     (match (resolve ctx v)
