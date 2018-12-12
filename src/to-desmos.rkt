@@ -62,7 +62,7 @@
                     (cond
                       [(symbol? de) (symbol->string de)]
                       [else de])))]
-      [_ (error "Cannot translate" expr)]))
+      [_ (error "Cannot translate to desmos" expr)]))
   (for ([e exprs]) (desmos e))
   ids)
 
