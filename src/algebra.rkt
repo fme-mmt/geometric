@@ -5,6 +5,7 @@
 (provide maple-solve eqs-point eqs-line eqs-circle eqs-intersection dist-points explain)
 (provide make-context resolve eqs)
 (provide elements json-point json-line json-circle json-intersection)
+(provide equations)
 
 (define indexs (make-hash))
 (define (new-var [prefix 'x])
@@ -30,7 +31,7 @@
             (list `(- (* (- ,y ,bp) (- ,aq ,ap)) (* (- ,x ,ap) (- ,bq ,bp)))))))
 
 
-; equacions cercle
+; equacions cercle donat el centre i el radi
 (define (eqs-circle eqs-p eqs-r)
   (λ (x y)
     (define a (new-var 'a))
@@ -55,6 +56,19 @@
     (append (eqs-p ap bp)
             (eqs-q aq bq)
             (list `(- (+ (sqr (- ,ap ,aq)) (sqr (- ,bp ,bq))) (sqr ,d))))))
+
+; equacions cercle donat dos punts
+(define (eqs-circle2 eqs-p eqs-q)
+  (λ (x y)
+    (define ap (new-var 'a))
+    (define bp (new-var 'b))
+    (define aq (new-var 'a))
+    (define bq (new-var 'b))
+    (define r (dist-points eqs-p eqs-q))
+    (append (eqs-p ap bp)
+            (eqs-q aq bq)
+            (r 'r)
+            (list `(- (+ (sqr (- ,x ,ap)) (sqr (- ,y ,bp))) (sqr r))))))
 
 ; triangle equilater
 ;(define (triangle-equilater eqs-p eqs-q)
@@ -92,8 +106,9 @@
 (define (eqs ctx v)
     (match (resolve ctx v)
       [#f (error "Not defined" v)]
-      [(list 'cut c1 c2) ((eqs-intersection (eqs ctx c1) (eqs ctx c2)))]
+      [(list 'cut c1 c2) (eqs-intersection (eqs ctx c1) (eqs ctx c2))]
       [(list 'circ p r) (eqs-circle (eqs ctx p) (eqs ctx r))]
+      [(list 'line p q) (eqs-line (eqs ctx p) (eqs ctx q))]
       [(list 'len p q) (dist-points (eqs ctx p) (eqs ctx q))]
       [(list 'point a b) (eqs-point a b)]
       [_ (error "not found" v)]))
@@ -167,13 +182,14 @@
 
 ;Midterm presentation
     ;triangle equilater
+(module+ test
       (define A (eqs-point 0 0))
       (define B (eqs-point 1 0))
       (define dist (dist-points A B))
       (define c1 (eqs-circle A dist))
       (define c2 (eqs-circle B dist))
       (define intersectionCD (eqs-intersection c1 c2))
-      ;; (maple-solve (intersectionCD 'x 'y))
+      (maple-solve (intersectionCD 'x 'y)))
 
 ;Wolfram alpha
 ;APP NAME: RacketUPC
@@ -238,8 +254,16 @@
     (values (string->symbol (hash-ref o 'id)) o)))
 
 ; petit exemple
-(define f (json-point 2 3))
+(module+ test
+ (define f (json-point 2 3))
 (define g (json-point 1 9))
 (define h (json-line f g))
 (define example2 (list f g h))
-;; (jsexpr->string (elements example2))
+(jsexpr->string (elements example2)))
+
+
+(define (equations g [vars '(x y)])
+(match g
+  [(list e ... fe)
+   (apply (eqs (make-context e) fe) vars)]
+  [_ (error "Not conforming" g)]))
