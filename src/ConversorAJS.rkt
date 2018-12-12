@@ -76,6 +76,9 @@
   (define ctx (make-hash))
   (define (assign-one def)
     (match def
+      [(list 'given vs ...)
+       (for ([v vs])
+         (hash-set! ctx v #f))]
       [(list (? symbol? v) c) (hash-set! ctx v c)]
       [_ (error "Not conforming" def)]))
   (for ([d defs]) (assign-one d))
@@ -83,11 +86,16 @@
 )
 
 (define example '(
-[A (point 0 0)]
-[B (point 1 0)]
-[c1 (circ A 1)]
-[c2 (circ B 1)]
-[CD (cut c1 c2)]))
+    [given A B]
+    [c1 (circ A B)]
+    [c2 (circ B A)]
+    [CD (cut c1 c2)]
+    [C (first CD)]
+    [D (second CD)]
+    [a (line B C)]
+    [b (line C A)]
+    [c (line A B)]
+))
 
 (define (resolve context var)
   (hash-ref context var #f))
@@ -121,27 +129,125 @@
 ;(js-one '(A (point a b)))
 (define (js-one expr ctx)
   (match expr
-    [(list x e) (js-assign x (js-one e ctx))]
-    [(list 'point x y) (format "hola1") (js-call "Point" x y)]
+    [(list 'given vs ...) ""]
+    [(list 'point x y) (js-call "Point" x y)]
     [(list 'line x y) (js-call "line_from_points" x y)]
-    [(list 'circ x y) (js-call "circle_from_center_radius" x y)]
+    [(list 'circ x y) (js-call "circle_from_center_radius" x (js-call "dist" x y))]
     [(list 'vector x y) (js-call "Vector" x y)]
-    [(list 'cut x y) (format "hola2")  (type x y ctx)]
-    [_ ""])
-    ;;(error "ups")]
+    [(list 'cut x y) (type x y ctx)]
+    [(list 'first x) (format "~a[~a]" x "0")]
+    [(list 'second x) (format "~a[~a]" x "1")]
+    [(list (? symbol? x) e) (js-assign x (js-one e ctx))]
+    [_  (error "ups" expr)])
   )
 
+(define (js-draw expr)
+  (match expr
+    [(list 'given vs ...)
+     (string-join (for/list ([a vs]) (js-call-drawpoint a)) "\n")]
+    [(list 'first x) (js-call-drawpoint x)]
+    [(list 'second x) (js-call-drawpoint x)]
+    [(list 'line x) (js-call-line x)]
+    [(list 'circ x)(js-call-circ x)]
+    [(list 'cut x) ""]
+    [(list (? symbol? x) e) (js-draw (list (first e) x))]
+    [_  (error "ups" expr)])
+)
+
+
+
+(define (js-call-drawpoint a)
+  (format "drawpoint(\"~a\",~a,ctx);" a a))
+
+(define (js-call-line l)
+  (format "drawline(~a,ctx);" l))
+
+(define (js-call-circ c)
+  (format "drawcircle(~a,ctx,'black');" c))
+
+(define (make-bloc-3 construct)
+  (string-join
+   (for/list ([e construct])
+     (js-draw e))
+   "\n"))
 
 ; funcio per calcular distancia entre punts per poder fer radis
-(define (triangle)
-  (define ctx (make-context example))
+(define (make-bloc-2 ctx construct)
   (string-join
-   (for/list ([e example])
+   (for/list ([e construct])
      (js-one e ctx))
    "\n"))
-;)
+
+(define (make-bloc-1 ctx)
+  (string-join
+   (for/list ([(v e) ctx] #:when (eq? e #f))
+     (format "var ~a = Point(data.~ax, data.~ay);" v v v))
+   "\n"))
+
+(define (make-data ctx)
+  (string-append
+   (format "var initialData = { \n")
+   (string-join
+    (for/list ([(v e) ctx] #:when (eq? e #f))
+      (format "~ax : ~a,\n ~ay : ~a" v (random) v (random)))
+    ",\n")
+   (format "\n};\n")))
+  
+(define (triangle)
+    (define ctx (make-context example))
+  (string-append
+   (make-data ctx)
+   (make-bloc-1 ctx)
+   (make-bloc-2 ctx example)))
+
+(define (write-to-file path)
+  (call-with-output-file path
+    (lambda (output-port)
+      (display (triangle) output-port))))
 
 
+(define (update-data path ctx)
+  (call-with-input-file path
+    (lambda (in)
+      (let* ((input (port->string in)))
+      (call-with-output-file path 
+          #:exists 'replace
+        (lambda (output-port)
+          (display (string-replace input "/*initialData*/" (make-data ctx)) output-port)))))))
 
 
-; Fer un match per mirar si son "line x y" o "circ x y" a la funcion type
+(define (update-1 path ctx)
+  (call-with-input-file path
+    (lambda (in)
+      (let* ((input (port->string in)))
+      (call-with-output-file path 
+          #:exists 'replace
+        (lambda (output-port)
+          (display (string-replace input "/*bloc1*/" (make-bloc-1 ctx)) output-port)))))))
+
+
+(define (update-2 path ctx example)
+  (call-with-input-file path
+    (lambda (in)
+      (let* ((input (port->string in)))
+      (call-with-output-file path 
+          #:exists 'replace
+        (lambda (output-port)
+          (display (string-replace input "/*bloc2*/" (make-bloc-2 ctx example)) output-port)))))))
+
+(define (update-3 path example)
+  (call-with-input-file path
+    (lambda (in)
+      (let* ((input (port->string in)))
+      (call-with-output-file path 
+          #:exists 'replace
+        (lambda (output-port)
+          (display (string-replace input "/*bloc3*/" (make-bloc-3 example)) output-port)))))))
+
+(define (update path)
+  (define ctx (make-context example))
+  (update-data path ctx)
+  (update-1 path ctx)
+  (update-2 path ctx example)
+  (update-3 path example))
+  
