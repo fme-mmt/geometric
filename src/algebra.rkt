@@ -208,6 +208,7 @@
   (match cmd
     [(list (? symbol? x) p) (format "Sigui ~a ~a" x (description1 p))]
     [(list 'point x y) (format "el punt de coordenada x = ~a i coordenada y = ~a." x y)]
+    [(list 'line x y) (format "la recta que passa pels punts ~a i ~a." x y)]
     [(list 'len x y) (format "la distància entre ~a i ~a." x y)]
     [(list 'circ x y) (format "la circumferència de centre ~a i radi ~a." x y)]
     [(list 'cut x y) (format "la intersecció entre ~a i ~a." x y)]))
