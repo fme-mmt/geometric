@@ -1,6 +1,7 @@
 #lang racket
 ; crear/explotar un contexte
-(provide resolve full-resolve make-context)
+(provide resolve full-resolve make-context add-to-context new-context)
+(provide (struct-out geo-lambda) app)
 
 
 (define (resolve context var)
@@ -17,9 +18,8 @@
   ctx)
 
 
-(define (make-full-context) '())
   
-(define (new-context fctx)
+(define (new-context [fctx '()])
   (cons (make-hash) fctx))
 
 (define (drop-context fctx)
@@ -53,8 +53,7 @@
      [c2 (circ B r)]
      [CD (cut c1 c2)])))
 
-(define global (make-full-context))
-(define-values (local const) (app global example '(point 0 0) '(point 1 0)))
+(define-values (local const) (app (new-context) example '(point 0 0) '(point 1 0)))
 (add-to-context local const)
 
 
