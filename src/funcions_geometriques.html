@@ -3,16 +3,15 @@
 	<head>
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
-        <title> Regular Pentagon  </title>
+        <title>Geometric Constructions</title>
         
         <script src = 'g9.js'> </script>
         
 	</head>
 	<body>
-        <h1>Construction of the regular pentagon</h1>
+        <h1>Demo of a geometric construction</h1>
 		<div id = "container"></div>
 		<script>
-			
 			
 			/**
 			 * Given two numbers a and b, returns the point (a,b).
@@ -27,7 +26,6 @@
 				return p;
 			}
 			
-			
 			/**
 			 * Given two numbers a and b, returns the vector (a,b).
 			 * @param a : Number indicating the x-axis value
@@ -40,7 +38,6 @@
 				v.y = b;
 				return v;
 			}
-			
 			
 			/**
 			 * Given two points p and q, returns the line that goes through them.
@@ -56,7 +53,6 @@
 				return line;	
 			} 
 
-			
 			/**
 			 * Given a point p and a number r, returns the circle with center p and radius r.
 			 * @param p : Point that will be used as the center of the circle
@@ -83,7 +79,6 @@
 				var mu, lambda;
 				if (l.vector.y === 0) mu = (l.point.y - m.point.y) / m.vector.y;
 				else mu = (l.point.x + (m.point.y - l.point.y)*l.vector.x / l.vector.y - m.point.x) / (m.vector.x - m.vector.y * l.vector.x/ l.vector.y);
-				//lambda = (m.point.y + mu * m.vector.y - l.point.y) / l.vector.y;
 				var ics = m.point.x + mu*m.vector.x;
 				var igrega = m.point.y + mu*m.vector.y;
 				var p = Point(ics, igrega);					
@@ -123,58 +118,6 @@
 				}
 				return intersecting_points;				
 			}
-
-
-			/**
-			 * Given two circles c and d, returns a list with the intersecting points.
-			 * @param c : First circle given as a set of a point used as the center and the radius
-			 * @param d : Second circle given as a set of a point used as the center and the radius
-			 * @return Returns a list with the points resulting from the intersection, if there are any.
-			 */
-			function intersect_circles2(c,d) {
-				var intersecting_points = [];
-				if (d.point.y !== c.point.y) {
-					var vara = 1 + (d.point.x - c.point.x)*(d.point.x - c.point.x)/((d.point.y - c.point.y)*(d.point.y - c.point.y));
-					var varb = -2*c.point.x - ((d.point.x - c.point.x)*(c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y ))/((d.point.y - c.point.y)*(d.point.y - c.point.y)) + 2*(d.point.x - c.point.x)/(d.point.y - c.point.y);
-					var varc = c.point.x*c.point.x + (c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y )*(c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y )/(4*(d.point.y - c.point.y)*(d.point.y - c.point.y)) - (c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y ) / (d.point.y - c.point.y) + c.point.x*c.point.x - c.radius*c.radius;
-					if (varb*varb - 4*vara*varc > 0) {
-						var x = (-varb + Math.sqrt(varb*varb - 4*vara*varc))/(2*vara);
-						var y = (c.radius*c.radius - d.radius*d.radius - 2*x*(d.point.x - c.point.x) - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y) / (2*(d.point.y - c.point.y));
-						var p = Point(x,y);
-						intersecting_points.push(p);
-						var x = (-varb - Math.sqrt(varb*varb - 4*vara*varc))/(2*vara);
-						var y = (c.radius*c.radius - d.radius*d.radius - 2*x*(d.point.x - c.point.x) - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y) / (2*(d.point.y - c.point.y));
-						var p = Point(x,y);
-						intersecting_points.push(p);
-					}
-					else if (varb*varb - 4*vara*varc === 0) {
-						var x = (-varb)/(2*vara);
-						var y = (c.radius*c.radius - d.radius*d.radius - 2*x*(d.point.x - c.point.x) - c.point.x*c.point.x + d.point.x*d.point.x - c.point.y*c.point.y + d.point.y*d.point.y) / (2*(d.point.y - c.point.y));
-						var p = Point(x,y);
-						intersecting_points.push(p);
-					}
-				}	
-				else if (d.point.x !== c.point.x) {
-					var x = (c.radius*c.radius - d.radius*d.radius - c.point.x*c.point.x + d.point.x*d.point.x)/(2*(d.point.x - c.point.x));
-					var vara = 1;
-					var varb = -2*c.point.y;
-					var varc = x*x - 2*x*c.point.x + c.point.x*c.point.x + c.point.y*c.point.y - c.radius*c.radius;
-					if (varb*varb - 4*vara*varc > 0) {
-						var y = (-varb + Math.sqrt(varb*varb - 4*vara*varc))/(2*vara);
-						var p = Point(x, y);
-						intersecting_points.push(p);
-						y = (-varb - Math.sqrt(varb*varb - 4*vara*varc))/(2*vara);
-						var p = Point(x, y);
-						intersecting_points.push(p);
-					}
-					else if (varb*varb - 4*vara*varc === 0) {
-						var y = -varb/(2*vara);
-						var p = Point(x, y);
-						intersecting_points.push(p);
-					}
-				}
-				return intersecting_points;	
-			}
 			
 			function unit (a){
                 var norm = Math.sqrt(a[0]*a[0] + a[1]*a[1]);
@@ -191,8 +134,13 @@
             
             const EPS = 1e-6;
             
+			/**
+			 * Given two circles c and d, returns a list with the intersecting points.
+			 * @param c : First circle given as a set of a point used as the center and the radius
+			 * @param d : Second circle given as a set of a point used as the center and the radius
+			 * @return Returns a list with the points resulting from the intersection, if there are any.
+			 */
             function intersect_circles(c,d) {
-                
                 var intersecting_points = [];
                 var dd = dist(c.point, d.point);
                 var cx = c.point.x;
@@ -228,12 +176,13 @@
                 return intersecting_points;
             }
 			
-			/* ---------------------------- EXEMPLE AMB UN PENTAGON -------------------------- */
+			/* --------------------------------------------------------- */
 			
 			
 			
-
-			// --------------------------- DIBUIX DEL PENTAGON ----------------------------------
+			// --------------------- CONSTRUCTION AND DRAWING ---------------------//
+            
+            //Drawing Functions
             
             function drawpoint(str, A, ctx){
                 ctx.point(A.x*100, -A.y*100);
@@ -249,7 +198,6 @@
                 ctx.line(A.x*100, -A.y*100, B.x*100, -B.y*100, {
                     'stroke-width': 5,
                     'stroke': 'blue',
-                    //'stroke-linecap': 'round'
                 });
             }
             
@@ -264,28 +212,28 @@
                 for (i = 0.0; i <= it; ++i){
                     ctx.point((C.point.x + C.radius*Math.cos(2*PI*i/it))*100, (C.point.y + C.radius*Math.sin(2*PI*i/it))*(-100), {r:2, fill: col});
                 }
-                //ctx.circle(C.point.x*100, -C.point.y*100, C.radius*100);
             }
             
-			var initialData = { 
-Bx : 0.8180461768418562,
- By : 0.6910380671582925,
-Ax : 0.7790179788218206,
- Ay : 0.08501188240071562
+            //Construction and Drawing
+
+
+var initialData = { 
+Bx : 0.9886355413208233,
+ By : 0.07797041959544813,
+Ax : 0.4861437392229908,
+ Ay : 0.8294188360495303
 };
 
-            
-            //const max_step = 8;
-            //var step = 0;
-            
+
+
 			var render = function(data, ctx){
-                
-                var B = Point(data.Bx, data.By);
+
+
+var B = Point(data.Bx, data.By);
 var A = Point(data.Ax, data.Ay);
 
 
 
-                
 var c1 = circle_from_center_radius(A,dist(A,B));
 var c2 = circle_from_center_radius(B,dist(B,A));
 var CD = intersect_circles(c1,c2);
@@ -296,8 +244,7 @@ var b = line_from_points(C,A);
 var c = line_from_points(A,B);
 
 
-
-                drawpoint("A",A,ctx);
+drawpoint("A",A,ctx);
 drawpoint("B",B,ctx);
 drawcircle(c1,ctx,'black');
 drawcircle(c2,ctx,'black');
@@ -307,11 +254,11 @@ drawpoint("D",D,ctx);
 drawline(a,ctx);
 drawline(b,ctx);
 drawline(c,ctx);
-                
+
+
             }
-						
-            //g9(initialData, render).align('center','center').insertInto('#container');
             
+            //Button functions
             function setG9() {
                 let g9Canvas = g9(initialData, render).align('center', 'center').insertInto('#container');
                 g9Canvas.node.style.height = '600px';
@@ -349,7 +296,6 @@ drawline(c,ctx);
             };
             
 		</script>
-        <button id="next" onClick="next()">Click to start</button>
         <button onClick="reset()">Reset</button>
 	</body>
 </html>
