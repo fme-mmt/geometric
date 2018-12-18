@@ -217,43 +217,19 @@
             //Construction and Drawing
 
 
-var initialData = { 
-Bx : 0.9886355413208233,
- By : 0.07797041959544813,
-Ax : 0.4861437392229908,
- Ay : 0.8294188360495303
-};
-
+/*initialData*/
 
 
 			var render = function(data, ctx){
 
 
-var B = Point(data.Bx, data.By);
-var A = Point(data.Ax, data.Ay);
+/*bloc1*/
 
 
-
-var c1 = circle_from_center_radius(A,dist(A,B));
-var c2 = circle_from_center_radius(B,dist(B,A));
-var CD = intersect_circles(c1,c2);
-var C = CD[0];
-var D = CD[1];
-var a = line_from_points(B,C);
-var b = line_from_points(C,A);
-var c = line_from_points(A,B);
+/*bloc2*/
 
 
-drawpoint("A",A,ctx);
-drawpoint("B",B,ctx);
-drawcircle(c1,ctx,'black');
-drawcircle(c2,ctx,'black');
-
-drawpoint("C",C,ctx);
-drawpoint("D",D,ctx);
-drawline(a,ctx);
-drawline(b,ctx);
-drawline(c,ctx);
+/*bloc3*/
 
 
             }
